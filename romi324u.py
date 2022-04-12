@@ -74,7 +74,7 @@ class Romi324U:
         return self.read_unpack(AVR, 3, 3, "???")
 
     def read_battery_millivolts(self):
-        return self.read_unpack(AVR, 10, 2, "H")
+        return self.read_unpack(AVR, 10, 2, "H")[0]
 
     def read_analog(self):
         return self.read_unpack(AVR, 12, 12, "HHHHHH")
@@ -83,21 +83,20 @@ class Romi324U:
         return self.read_unpack(AVR, 39, 4, 'hh')
 
     def test_read8(self):
-        self.read_unpack(AVR, 0, 8, 'cccccccc')
+        return self.read_unpack(AVR, 0, 8, 'cccccccc')
 
     def test_write8(self):
         self.bus.write_i2c_block_data(20, 0, [0, 0, 0, 0, 0, 0, 0, 0])
         time.sleep(0.0001)
 
-    # @property
-    # def xl_odr(self):
-    #     return self.read_unpack(IMU, CTRL1_XL, 1, "B")
-    #     #return self.astar.read_byte_data(self.adrs, CTRL1_XL)
-    #
-    # @xl_odr.setter
-    # def xl_odr(self, b):
-    #     self.astar.write_byte_data(self.adrs, CTRL1_XL, b)
-    #
+    @property
+    def xl_odr(self):
+        return self.read_unpack(IMU, CTRL1_XL, 1, "B")[0] & ODR_MASK
+
+    @xl_odr.setter
+    def xl_odr(self, b):
+        self.astar.write_byte_data(self.adrs, CTRL1_XL, b)
+
     # @property
     # def xl_hp(self):
     #     v = self.astar.read_byte_data(self.adrs, CTRL6_C)

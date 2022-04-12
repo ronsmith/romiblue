@@ -2,8 +2,6 @@
 ADRS1 = 0x6b
 ADRS0 = 0x6a
 
-ODR_OFF = 0b00000000
-
 FUNC_CFG_ACCESS = 0x01
 FIFO_CTRL1 = 0x06
 FIFO_CTRL2 = 0x07
@@ -65,61 +63,19 @@ FREE_FALL = 0x5d
 MD1_CFG = 0x5e
 MD2_CFG = 0x5f
 
-_XL_HM_MODE_MASK = 0b00010000
-_GY_HM_MODE_MASK = 0b10000000
+XL_HM_MODE_MASK = 0b00010000
+GY_HM_MODE_MASK = 0b10000000
+ODR_MASK = 0b11110000
 
-
-class LSM6:
-    """requires an SMBus instance"""
-    def __init__(self, bus, adrs, xl_odr=ODR_OFF, xl_hp=False, gy_odr=ODR_OFF, gy_hp=False):
-        self.bus = bus
-        self.adrs = adrs
-        self.xl_odr = xl_odr
-        self.xl_hp = xl_hp
-        self.gy_odr = gy_odr
-        self.gy_hp = gy_hp
-
-    @property
-    def xl_odr(self):
-        return self.bus.read_byte_data(self.adrs, CTRL1_XL)
-
-    @xl_odr.setter
-    def xl_odr(self, b):
-        self.bus.write_byte_data(self.adrs, CTRL1_XL, b)
-
-    @property
-    def xl_hp(self):
-        v = self.bus.read_byte_data(self.adrs, CTRL6_C)
-        return (v & _XL_HM_MODE_MASK) != 0
-
-    @xl_hp.setter
-    def xl_hp(self, b):
-        v = self.xl_hp
-        if b:
-            v |= _XL_HM_MODE_MASK
-        else:
-            v &= ~_XL_HM_MODE_MASK
-        self.bus.write_byte_data(self.adrs, CTRL6_C, v)
-
-    @property
-    def gy_odr(self):
-        return self.bus.read_byte_data(self.adrs, CTRL2_G)
-
-    @gy_odr.setter
-    def gy_odr(self, b):
-        self.bus.write_byte_data(self.adrs, CTRL2_G, b)
-
-    @property
-    def gy_hp(self):
-        v = self.bus.read_byte_data(self.adrs, CTRL7_G)
-        return (v & _GY_HM_MODE_MASK) != 0
-
-    @gy_hp.setter
-    def gy_hp(self, b):
-        v = self.xl_hp
-        if b:
-            v |= _GY_HM_MODE_MASK
-        else:
-            v &= ~_GY_HM_MODE_MASK
-        self.bus.write_byte_data(self.adrs, CTRL7_G, v)
+ODR_OFF = 0b00000000
+ODR_13HZ = 0b00010000
+ODR_26HZ = 0b00100000
+ODR_52HZ = 0b00110000
+ODR_104HZ = 0b01000000
+ODR_208HZ = 0b01010000
+ODR_416HZ = 0b01100000
+ODR_833HZ = 0b01110000
+ODR_166KHZ = 0b10000000
+ODR_333KHZ = 0b10010000     # Accelerometer only
+ODR_666KHZ = 0b10100000     # Accelerometer only
 
