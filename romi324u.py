@@ -89,13 +89,21 @@ class Romi324U:
         self.bus.write_i2c_block_data(20, 0, [0, 0, 0, 0, 0, 0, 0, 0])
         time.sleep(0.0001)
 
+    def _read_byte_with_mask(self, adrs, reg, mask):
+        return self.read_unpack(adrs, reg, 1, "B")[0] & mask
+
+    def _write_byte_with_mask(self, adrs, reg, value, mask):
+        r = self.read_unpack(adrs, reg, 1, "B")[0]
+        b = (r & ~mask) | (value & mask)
+        self.write_pack(adrs, reg, "B", b)
+
     @property
     def xl_odr(self):
-        return self.read_unpack(IMU, CTRL1_XL, 1, "B")[0] & ODR_MASK
+        return self._read_byte_with_mask(IMU, CTRL1_XL, ODR_MASK)
 
     @xl_odr.setter
-    def xl_odr(self, b):
-        self.astar.write_byte_data(self.adrs, CTRL1_XL, b)
+    def xl_odr(self, value):
+        self._write_byte_with_mask(IMU, CTRL1_XL, value, ODR_MASK)
 
     # @property
     # def xl_hp(self):
