@@ -105,39 +105,27 @@ class Romi324U:
     def xl_odr(self, value):
         self._write_byte_with_mask(IMU, CTRL1_XL, value, ODR_MASK)
 
-    # @property
-    # def xl_hp(self):
-    #     v = self.astar.read_byte_data(self.adrs, CTRL6_C)
-    #     return (v & _XL_HM_MODE_MASK) != 0
-    #
-    # @xl_hp.setter
-    # def xl_hp(self, b):
-    #     v = self.xl_hp
-    #     if b:
-    #         v |= _XL_HM_MODE_MASK
-    #     else:
-    #         v &= ~_XL_HM_MODE_MASK
-    #     self.astar.write_byte_data(self.adrs, CTRL6_C, v)
-    #
-    # @property
-    # def gy_odr(self):
-    #     return self.astar.read_byte_data(self.adrs, CTRL2_G)
-    #
-    # @gy_odr.setter
-    # def gy_odr(self, b):
-    #     self.astar.write_byte_data(self.adrs, CTRL2_G, b)
-    #
-    # @property
-    # def gy_hp(self):
-    #     v = self.astar.read_byte_data(self.adrs, CTRL7_G)
-    #     return (v & _GY_HM_MODE_MASK) != 0
-    #
-    # @gy_hp.setter
-    # def gy_hp(self, b):
-    #     v = self.xl_hp
-    #     if b:
-    #         v |= _GY_HM_MODE_MASK
-    #     else:
-    #         v &= ~_GY_HM_MODE_MASK
-    #     self.astar.write_byte_data(self.adrs, CTRL7_G, v)
-    #
+    @property
+    def xl_hp(self):
+        return self._read_byte_with_mask(IMU, CTRL6_C, XL_HM_MODE_MASK) != 0
+
+    @xl_hp.setter
+    def xl_hp(self, value):
+        self._write_byte_with_mask(IMU, CTRL6_C, (1 if value else 0)<<4, XL_HM_MODE_MASK)
+
+    @property
+    def gy_odr(self):
+        return self._read_byte_with_mask(IMU, CTRL2_G, ODR_MASK)
+
+    @gy_odr.setter
+    def gy_odr(self, value):
+        self._write_byte_with_mask(IMU, CTRL2_G, value, ODR_MASK)
+
+    @property
+    def gy_hp(self):
+        return self._read_byte_with_mask(IMU, CTRL7_G, GY_HM_MODE_MASK) != 0
+
+    @gy_hp.setter
+    def gy_hp(self, value):
+        self._write_byte_with_mask(IMU, CTRL7_G, (1 if value else 0)<<7, GY_HM_MODE_MASK)
+
