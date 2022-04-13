@@ -4,6 +4,14 @@ import struct
 import time
 from lsm6 import *
 
+ENCODERS_REG = 0x27
+ANALOGS_REG = 0x0c
+BATTERY_REG = 0x0a
+BUTTONS_REG = 0x03
+LEDS_REG = 0x00
+PLAY_REG = 0x18
+MOTORS_REG = 0x06
+
 AVR = 0x14
 IMU = 0x6b
 
@@ -24,7 +32,7 @@ class Romi324U:
         # self.gy_odr = gy_odr
         # self.gy_hp = gy_hp
 
-    def read_unpack(self, address, register, size, format):
+    def _read_unpack(self, address, register, size, format):
         """
         Ideally we could do this:
            byte_list = self.bus.read_i2c_block_data(20, address, size)
@@ -46,7 +54,7 @@ class Romi324U:
         byte_list = [self.bus.read_byte(address) for _ in range(size)]
         return struct.unpack(format, bytes(byte_list))
 
-    def write_pack(self, address, register, format, *data):
+    def _write_pack(self, address, register, format, *data):
         """
         Luckily we are able to do the write_i2c_block_data for this and
         then just add a small delay of 0.0001 (100 us) afterwards.
@@ -61,41 +69,38 @@ class Romi324U:
         self.bus.write_i2c_block_data(address, register, data_array)
         time.sleep(0.0001) # pause to give the bus time to catch up
 
-    def leds(self, red, yellow, green):
-        self.write_pack(AVR, 0, 'BBB', red, yellow, green)
-
-    def play_notes(self, notes):
-        self.write_pack(AVR, 24, 'B14s', 1, notes.encode("ascii"))
-
-    def motors(self, left, right):
-        self.write_pack(AVR, 6, 'hh', left, right)
-
-    def read_buttons(self):
-        return self.read_unpack(AVR, 3, 3, "???")
-
-    def read_battery_millivolts(self):
-        return self.read_unpack(AVR, 10, 2, "H")[0]
-
-    def read_analog(self):
-        return self.read_unpack(AVR, 12, 12, "HHHHHH")
-
-    def read_encoders(self):
-        return self.read_unpack(AVR, 39, 4, 'hh')
-
-    def test_read8(self):
-        return self.read_unpack(AVR, 0, 8, 'cccccccc')
-
-    def test_write8(self):
-        self.bus.write_i2c_block_data(20, 0, [0, 0, 0, 0, 0, 0, 0, 0])
-        time.sleep(0.0001)
-
     def _read_byte_with_mask(self, adrs, reg, mask):
-        return self.read_unpack(adrs, reg, 1, "B")[0] & mask
+        return self._read_unpack(adrs, reg, 1, "B")[0] & mask
 
     def _write_byte_with_mask(self, adrs, reg, value, mask):
-        r = self.read_unpack(adrs, reg, 1, "B")[0]
+        r = self._read_unpack(adrs, reg, 1, "B")[0]
         b = (r & ~mask) | (value & mask)
-        self.write_pack(adrs, reg, "B", b)
+        self._write_pack(adrs, reg, "B", b)
+
+    def leds(self, red, yellow, green):
+        self._write_pack(AVR, LEDS_REG, 'BBB', red, yellow, green)
+
+    def play_notes(self, notes):
+        self._write_pack(AVR, PLAY_REG, 'B14s', 1, notes.encode("ascii"))
+
+    def motors(self, left, right):
+        self._write_pack(AVR, MOTORS_REG, 'hh', left, right)
+
+    @property
+    def buttons(self):
+        return self._read_unpack(AVR, BUTTONS_REG, 3, "???")
+
+    @property
+    def battery(self):
+        return self._read_unpack(AVR, BATTERY_REG, 2, "H")[0]
+
+    @property
+    def analogs(self):
+        return self._read_unpack(AVR, ANALOGS_REG, 12, "HHHHHH")
+
+    @property
+    def encoders(self):
+        return self._read_unpack(AVR, ENCODERS_REG, 4, 'hh')
 
     @property
     def xl_odr(self):
