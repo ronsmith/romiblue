@@ -1,6 +1,7 @@
+from i2chelper import read_byte_with_mask, write_byte_with_mask, read_unpack
 
-ADRS1 = 0x6b
-ADRS0 = 0x6a
+IMU_ADRS1 = 0x6b
+IMU_ADRS0 = 0x6a
 
 FUNC_CFG_ACCESS = 0x01
 FIFO_CTRL1 = 0x06
@@ -76,11 +77,103 @@ ODR_208HZ = 0b01010000
 ODR_416HZ = 0b01100000
 ODR_833HZ = 0b01110000
 ODR_166KHZ = 0b10000000
-ODR_333KHZ = 0b10010000     # Accelerometer only
-ODR_666KHZ = 0b10100000     # Accelerometer only
+ODR_333KHZ = 0b10010000  # Accelerometer only
+ODR_666KHZ = 0b10100000  # Accelerometer only
 
 FIFO_BYPASS_MODE = 0b00000000
 FIFO_FIFO_MODE = 0b00000001
 FIFO_CONT_TO_FIFO_MODE = 0b00000011
 FIFO_BYPASS_TO_CONT_MODE = 0b00000100
 FIFO_MODE_MASK = 0b00000111
+
+
+class IMUData:
+    def __init__(self, tup):
+        self.gy_x, self.gy_y, self.gy_z, self.xl_x, self.xl_y, self.xl_z = tup
+
+
+class LSM6:
+
+    def __init__(self, bus, adrs=IMU_ADRS1, xl_odr=ODR_OFF, xl_hp=False, gy_odr=ODR_OFF, gy_hp=False):
+        """
+        :param bus: SMBus instance
+        :param adrs: The IC2 address for the LSM6 device
+        :param xl_odr: Data rate for the accelerometer
+        :param xl_hp: High-performance flag for accelerometer
+        :param gy_odr: Data rate for the gyroscope
+        :param gy_hp: High-performance flag for the gyroscope
+        """
+        self.bus = bus
+        self.adrs = adrs
+        self.xl_odr = xl_odr
+        self.xl_hp = xl_hp
+        self.gy_odr = gy_odr
+        self.gy_hp = gy_hp
+
+    @property
+    def xl_odr(self):
+        """fetch the data rate for the accelerometer"""
+        return read_byte_with_mask(self.bus, self.adrs, CTRL1_XL, ODR_MASK)
+
+    @xl_odr.setter
+    def xl_odr(self, value):
+        """set the data rate for the accelerometer"""
+        write_byte_with_mask(self.bus, self.adrs, CTRL1_XL, value, ODR_MASK)
+
+    @property
+    def xl_hp(self):
+        """fetch the high-performance flag for accelerometer"""
+        return read_byte_with_mask(self.bus, self.adrs, CTRL6_C, XL_HM_MODE_MASK) != 0
+
+    @xl_hp.setter
+    def xl_hp(self, value):
+        """set the high-performance flag for accelerometer"""
+        write_byte_with_mask(self.bus, self.adrs, CTRL6_C, (1 if value else 0) << 4, XL_HM_MODE_MASK)
+
+    @property
+    def gy_odr(self):
+        """fetch the data rate for the gyroscope"""
+        return read_byte_with_mask(self.bus, self.adrs, CTRL2_G, ODR_MASK)
+
+    @gy_odr.setter
+    def gy_odr(self, value):
+        """set the data rate for the gyroscope"""
+        write_byte_with_mask(self.bus, self.adrs, CTRL2_G, value, ODR_MASK)
+
+    @property
+    def gy_hp(self):
+        """fetch the high-performance flag for the gyroscope"""
+        return read_byte_with_mask(self.bus, self.adrs, CTRL7_G, GY_HM_MODE_MASK) != 0
+
+    @gy_hp.setter
+    def gy_hp(self, value):
+        """set the high-performance flag for the gyroscope"""
+        write_byte_with_mask(self.bus, self.adrs, CTRL7_G, (1 if value else 0) << 7, GY_HM_MODE_MASK)
+
+    @property
+    def fifo_odr(self):
+        """fetch the FIFO data rate"""
+        # the ODR value and mask have to be shifted by one bit for FIFO
+        return read_byte_with_mask(self.bus, self.adrs, FIFO_CTRL5, ODR_MASK >> 1) << 1
+
+    @fifo_odr.setter
+    def fifo_odr(self, value):
+        """set the FIFO data rate"""
+        # the ODR value and mask have to be shifted by one bit for FIFO
+        write_byte_with_mask(self.bus, self.adrs, FIFO_CTRL5, value >> 1, ODR_MASK >> 1)
+
+    @property
+    def fifo_mode(self):
+        """fetch the FIFO mode"""
+        return read_byte_with_mask(self.bus, self.adrs, FIFO_CTRL5, FIFO_MODE_MASK) << 1
+
+    @fifo_mode.setter
+    def fifo_mode(self, value):
+        """set the FIFO mode"""
+        write_byte_with_mask(self.bus, self.adrs, FIFO_CTRL5, value, FIFO_MODE_MASK)
+
+    @property
+    def imu_data(self):
+        """read the IMU data"""
+        t = read_unpack(self.bus, self.adrs, OUTX_L_G, 12, "HHHHHH")
+        return IMUData(t)
