@@ -9,7 +9,7 @@ lsm = LSM6(bus, IMU_ADRS1, ODR_166KHZ, False, ODR_166KHZ, False)
 
 
 def main():
-    print("BUttons:", romi.buttons)
+    print("Buttons:", romi.buttons)
     print("Battery:", romi.battery)
     print("IMU:", lsm.imu_data)
 
