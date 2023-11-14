@@ -10,8 +10,9 @@ MOTORS_REG = 0x06
 
 AVR_ADRS = 0x14
 
+A,B,C = (0,1,2) # button indicies 
 
-class Romi324U:
+class Romi32U4:
 
     def __init__(self, bus):
         """
