@@ -3,7 +3,7 @@ sys.path.insert(0, '..')
 
 import click
 from smbus2 import SMBus
-from romi32u4 import Romi32U4
+from romi32u4 import Romi32U4, Encoders
 from lsm6 import LSM6
 from time import sleep
 
@@ -14,15 +14,19 @@ lsm = LSM6(romi)
 
 
 @click.command()
-@click.argument('left', default=30)
-@click.argument('right', default=-30)
+@click.argument('left', default=30, type=click.INT)
+@click.argument('right', default=-30, type=click.INT)
 def main(left, right):
     try:
         lsm.enable()
         romi.motors(left, right)
+        last_encoders = romi.encoders
         while not romi.buttons.a:
-            print('GY', lsm.read_gyro(), 'XL', lsm.read_accel(), romi.encoders, 'Battery:', romi.battery, 'mv')
             sleep(1)
+            encoders = romi.encoders
+            encoders_diff = Encoders(*map(lambda i, j: j - i, last_encoders, encoders))
+            last_encoders = encoders
+            print('GY', lsm.read_gyro(), 'XL', lsm.read_accel(), encoders_diff, 'Battery:', romi.battery, 'mv')
 
     finally:
         lsm.disable()
