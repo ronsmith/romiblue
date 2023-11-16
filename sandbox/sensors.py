@@ -14,11 +14,13 @@ lsm = LSM6(bus)
 
 def main():
     try:
+        lsm.enable()
         while not romi.buttons[A]:
             print('GY:', lsm.read_gyro(), "XL:", lsm.read_accel())
             sleep(1)
 
     finally:
+        lsm.disable()
         romi.motors(0, 0)
 
 
