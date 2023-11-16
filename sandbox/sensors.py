@@ -15,14 +15,14 @@ lsm = LSM6(bus)
 def main():
     try:
         lsm.enable()
-        romi.led_yellow(LED_ON)
+        romi.led_green(LED_ON)
         while not romi.buttons[A]:
             print('GY', lsm.read_gyro(), "XL", lsm.read_accel())
             sleep(1)
 
     finally:
         lsm.disable()
-        romi.led_yellow(LED_OFF)
+        romi.led_green(LED_OFF)
         romi.motors(0, 0)
 
 
