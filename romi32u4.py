@@ -44,6 +44,7 @@ class Romi32U4:
 
     def motors(self, left, right):
         self._write_pack(MOTORS_REG, 'hh', left, right)
+        self.led_yellow(LED_ON if left != 0 or right != 0 else LED_OFF)
 
     @property
     def buttons(self):

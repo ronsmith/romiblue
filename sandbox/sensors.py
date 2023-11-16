@@ -9,21 +9,18 @@ from time import sleep
 
 bus = SMBus(1)
 romi = Romi32U4(bus)
-lsm = LSM6(bus)
+lsm = LSM6(romi)
 
 
 def main():
     try:
         lsm.enable()
-        romi.led_green(LED_ON)
         while not romi.buttons[A]:
             print('GY', lsm.read_gyro(), "XL", lsm.read_accel())
             sleep(1)
 
     finally:
         lsm.disable()
-        romi.led_green(LED_OFF)
-        romi.motors(0, 0)
 
 
 if __name__ == "__main__":
