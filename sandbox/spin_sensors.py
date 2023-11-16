@@ -17,7 +17,7 @@ def main():
         lsm.enable()
         romi.motors(30, -30)
         while not romi.buttons.a:
-            print('GY', lsm.read_gyro(), 'XL', lsm.read_accel())
+            print('GY', lsm.read_gyro(), 'XL', lsm.read_accel(), romi.encoders)
             sleep(1)
 
     finally:
