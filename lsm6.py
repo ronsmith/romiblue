@@ -24,6 +24,11 @@ class LSM6(object):
         self.bus.write_byte_data(self.sa, Regs.CTRL2_G, 0x58)  # 208 Hz ODR, 1000 dps FS
         self.bus.write_byte_data(self.sa, Regs.CTRL3_C, 0x04)  # IF_INC = 1 (automatically increment register address)
 
+    def disable(self):
+        self.bus.write_byte_data(self.sa, Regs.CTRL1_XL, 0x00)
+        self.bus.write_byte_data(self.sa, Regs.CTRL2_G, 0x00)
+        self.bus.write_byte_data(self.sa, Regs.CTRL3_C, 0x00)
+
     def read_gyro(self):
         byte_list = self.bus.read_i2c_block_data(self.sa, Regs.OUTX_L_G, 6)
         return Vector(*struct.unpack('hhh', bytes(byte_list)))
