@@ -1,2 +1,2 @@
 smbus2
-lsm6 @ git+https://github.com/ronsmith/lsm6.git
+click

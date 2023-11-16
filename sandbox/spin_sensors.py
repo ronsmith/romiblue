@@ -1,6 +1,7 @@
 import sys
 sys.path.insert(0, '..')
 
+import click
 from smbus2 import SMBus
 from romi32u4 import Romi32U4
 from lsm6 import LSM6
@@ -12,10 +13,13 @@ romi = Romi32U4(bus)
 lsm = LSM6(romi)
 
 
-def main():
+@click.command()
+@click.argument('left', default=30)
+@click.argument('right', default=-30)
+def main(left, right):
     try:
         lsm.enable()
-        romi.motors(30, -30)
+        romi.motors(left, right)
         while not romi.buttons.a:
             print('GY', lsm.read_gyro(), 'XL', lsm.read_accel(), romi.encoders, 'Battery:', romi.battery, 'mv')
             sleep(1)
