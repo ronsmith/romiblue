@@ -38,7 +38,7 @@ class Romi32U4:
         self._write_pack(LED_GREEN, 'B', enable)
 
     def play_notes(self, notes):
-        self._write_pack(PLAY_REG, 'B14s', 1, notes.encode("ascii"))
+        self._write_pack(PLAY_REG, 'B14s', 1, notes.encode('ascii'))
 
     def motors(self, left, right):
         self._write_pack(MOTORS_REG, 'hh', left, right)
@@ -46,15 +46,15 @@ class Romi32U4:
 
     @property
     def buttons(self):
-        return Buttons(*self._read_unpack(BUTTONS_REG, 3, "???"))
+        return Buttons(*self._read_unpack(BUTTONS_REG, 3, '???'))
 
     @property
     def battery(self):
-        return self._read_unpack(BATTERY_REG, 2, "H")[0]
+        return self._read_unpack(BATTERY_REG, 2, 'H')[0]
 
     @property
     def analogs(self):
-        return self._read_unpack(ANALOGS_REG, 12, "HHHHHH")
+        return self._read_unpack(ANALOGS_REG, 12, 'HHHHHH')
 
     @property
     def encoders(self):
