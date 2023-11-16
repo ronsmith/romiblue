@@ -18,8 +18,6 @@ class LSM6(object):
     def __init__(self, bus, slave_addr=0b1101011):
         self.bus = bus
         self.sa = slave_addr
-        self.g = Vector(0, 0, 0)
-        self.a = Vector(0, 0, 0)
 
     def enable(self):
         self.bus.write_byte_data(self.sa, Regs.CTRL1_XL, 0x50)  # 208 Hz ODR, 2 g FS
@@ -28,12 +26,11 @@ class LSM6(object):
 
     def read_gyro(self):
         byte_list = self.bus.read_i2c_block_data(self.sa, Regs.OUTX_L_G, 6)
-        self.g = Vector(*struct.unpack('hhh', bytes(byte_list)))
+        return Vector(*struct.unpack('hhh', bytes(byte_list)))
 
     def read_accel(self):
         byte_list = self.bus.read_i2c_block_data(self.sa, Regs.OUTX_L_XL, 6)
-        self.a = Vector(*struct.unpack('hhh', bytes(byte_list)))
+        return Vector(*struct.unpack('hhh', bytes(byte_list)))
 
     def read(self):
-        self.read_gyro()
-        self.read_accel()
+        return self.read_gyro(), self.read_accel()
