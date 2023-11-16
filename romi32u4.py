@@ -1,5 +1,6 @@
 from time import sleep
 from struct import pack, unpack
+from collections import namedtuple
 
 ENCODERS_REG = 0x27
 ANALOGS_REG = 0x0c
@@ -14,18 +15,15 @@ LED_OFF = 0x00
 PLAY_REG = 0x18
 MOTORS_REG = 0x06
 
+Encoders = namedtuple('Encoders', 'left right')
+Buttons = namedtuple('Buttons', 'a b c')
 
-AVR_ADRS = 0x14
-
-A,B,C = (0,1,2) # button indicies 
 
 class Romi32U4:
 
     def __init__(self, bus):
-        """
-        :param bus: SMBus
-        """
         self.bus = bus
+        self.adrs = 0x14
 
     def leds(self, red, yellow, green):
         self._write_pack(LEDS_REG, 'BBB', red, yellow, green)
@@ -48,7 +46,7 @@ class Romi32U4:
 
     @property
     def buttons(self):
-        return self._read_unpack(BUTTONS_REG, 3, "???")
+        return Buttons(*self._read_unpack(BUTTONS_REG, 3, "???"))
 
     @property
     def battery(self):
@@ -60,15 +58,15 @@ class Romi32U4:
 
     @property
     def encoders(self):
-        return self._read_unpack(ENCODERS_REG, 4, 'hh')
-    
+        return Encoders(*self._read_unpack(ENCODERS_REG, 4, 'hh'))
+
     def _read_unpack(self, register, size, fmt):
-        self.bus.write_byte(AVR_ADRS, register)  # no value, just moves the pointer to the specified address
+        self.bus.write_byte(self.adrs, register)  # no value, just moves the pointer to the specified address
         sleep(0.0001)  # pause to give the bus time to catch up
-        byte_list = [self.bus.read_byte(AVR_ADRS) for _ in range(size)]
+        byte_list = [self.bus.read_byte(self.adrs) for _ in range(size)]
         return unpack(fmt, bytes(byte_list))
 
     def _write_pack(self, register, fmt, *data):
         data_array = list(pack(fmt, *data))
-        self.bus.write_i2c_block_data(AVR_ADRS, register, data_array)
+        self.bus.write_i2c_block_data(self.adrs, register, data_array)
         sleep(0.0001)  # pause to give the bus time to catch up

@@ -15,7 +15,7 @@ lsm = LSM6(romi)
 def main():
     try:
         lsm.enable()
-        while not romi.buttons[A]:
+        while not romi.buttons.a:
             print('GY', lsm.read_gyro(), "XL", lsm.read_accel())
             sleep(1)
 
