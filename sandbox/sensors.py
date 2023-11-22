@@ -16,8 +16,8 @@ def main():
     try:
         lsm.enable()
         while not romi.buttons.a:
+            sleep(1)  # sleep first otherwise the first sensor readings are bogus
             print('GY', lsm.read_gyro(), 'XL', lsm.read_accel())
-            sleep(1)
 
     finally:
         lsm.disable()

@@ -22,7 +22,7 @@ def main(left, right):
         romi.motors(left, right)
         last_encoders = romi.encoders
         while not romi.buttons.a:
-            sleep(1)
+            sleep(1)  # sleep first otherwise the first sensor readings are bogus
             encoders = romi.encoders
             encoders_diff = Encoders(*map(lambda i, j: j - i, last_encoders, encoders))
             last_encoders = encoders
