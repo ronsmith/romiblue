@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# sudo apt install python3-smbus i2c-tools
+# make sure the I2C interface is enabled in raspi-config
+# copy this script to $home/bin and make it executable
+
 from smbus import SMBus
 from struct import unpack
 from time import sleep
