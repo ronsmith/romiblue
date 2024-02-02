@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RomiBlue</title>
+</head>
+<body>
+    <h1>Romi<span style="color: blue">Blue</span></h1>
+
+    <p>Light <button id="light-on">On</button> <button id="light-off">Off</button></p>
+    <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $("#light-on").click(function() {
+                $.post("light/on");
+            });
+            $("#light-off").click(function() {
+                $.post("light/off");
+            });
+        });
+    </script>
+</body>
+</html>

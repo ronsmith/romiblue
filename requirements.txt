@@ -1,2 +1,5 @@
 smbus2
 click
+flask
+RPi.GPIO
+MarkupSafe
