@@ -49,5 +49,26 @@ def light(mode):
         return {'error': 'Invalid mode'}, 400
 
 
+@app.route('/horn', methods=['GET', 'POST'])
+def horn():
+    logger.info('blow horn.')
+    # TODO: blow horn
+    return {'status': 'ok'}, 200
+
+
+@app.route('/wheel/<side>/<direction>', methods=['GET', 'POST'])
+def wheel(side, direction):
+    logger.info(f'{side} wheel {direction}.')
+    # TODO: wheel
+    return {'status': 'ok'}, 200
+
+
+@app.route('/wheel/stop-all', methods=['GET', 'POST'])
+def wheel_stop_all():
+    logger.info('wheel: stop all.')
+    # TODO: wheel stop all
+    return {'status': 'ok'}, 200
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5000)
