@@ -1,6 +1,7 @@
 // Copyright Pololu Corporation.  For more information, see https://www.pololu.com/
 
 #pragma once
+#include "Arduino.h"
 #include "PololuTWISlave.h"
 
 /* PololuRPiSlave is an extension of PololuTWISlave that slows down
