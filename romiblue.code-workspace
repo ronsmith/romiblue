@@ -1,4 +1,11 @@
 {
-	"folders": [],
+	"folders": [
+		{
+			"path": "Romi32U4Slave"
+		},
+		{
+			"path": "RasPiServer"
+		}
+	],
 	"settings": {}
 }
